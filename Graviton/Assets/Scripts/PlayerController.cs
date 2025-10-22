@@ -1,20 +1,32 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    // Thrust of player engine
-    [SerializeField] private float thrustForce = 5f;
+    
+    [SerializeField] private float _thrustForce = 5f;
+    [SerializeField] private float _maxFuel = 80f;
+    [SerializeField] private float fuelConsumptionRate = 12f; // fuel per second when thrusting
+    [SerializeField] private Image _fuelBar;
+
+    private float _currentFuel;
     private Rigidbody2D _rb;
 
     void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _currentFuel = _maxFuel;
     }
 
     void FixedUpdate()
     {
         ApplyGravityWells();
         HandleInput();
+    }
+
+    void Update()
+    {
+        _fuelBar.fillAmount = _currentFuel / _maxFuel;
     }
 
     void ApplyGravityWells()
@@ -58,9 +70,20 @@ public class Player : MonoBehaviour
 
         // prevent reverse thrust
         if (thrustInput < 0f)
+        {
             thrustInput = 0f;
+        }
+
 
         _rb.rotation += rotateInput * rotationSpeed * Time.fixedDeltaTime;
-        _rb.AddForce(thrustInput * thrustForce * transform.up);
+        if (Input.GetKey(KeyCode.UpArrow) && _currentFuel > 0f)
+        {
+            _rb.AddForce(thrustInput * _thrustForce * transform.up);
+            _currentFuel -= fuelConsumptionRate * Time.deltaTime;
+
+            // clamp so it never goes below 0
+            _currentFuel = Mathf.Max(_currentFuel, 0f);
+        }
+
     }
 }

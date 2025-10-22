@@ -6,7 +6,6 @@ public class StarScript : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            
             Manager.Instance.Stars += 1;
 
             Destroy(gameObject);
