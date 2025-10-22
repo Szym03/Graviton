@@ -3,11 +3,18 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    
+
     [SerializeField] private float _thrustForce = 5f;
     [SerializeField] private float _maxFuel = 80f;
-    [SerializeField] private float fuelConsumptionRate = 12f; // fuel per second when thrusting
+    [SerializeField] private float _fuelConsumptionRate = 12f; // fuel per second when thrusting
     [SerializeField] private Image _fuelBar;
+    [SerializeField] private Sprite _idleSprite;
+    [SerializeField] private Sprite _thrustSprite;
+    private SpriteRenderer _spriteRenderer;
+    private AudioSource _source;
+
+
+
 
     private float _currentFuel;
     private Rigidbody2D _rb;
@@ -16,6 +23,9 @@ public class Player : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _currentFuel = _maxFuel;
+        _source = GetComponent<AudioSource>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _spriteRenderer.sprite = _idleSprite;
     }
 
     void FixedUpdate()
@@ -76,13 +86,24 @@ public class Player : MonoBehaviour
 
 
         _rb.rotation += rotateInput * rotationSpeed * Time.fixedDeltaTime;
-        if (Input.GetKey(KeyCode.UpArrow) && _currentFuel > 0f)
-        {
-            _rb.AddForce(thrustInput * _thrustForce * transform.up);
-            _currentFuel -= fuelConsumptionRate * Time.deltaTime;
+        bool isThrusting = Input.GetKey(KeyCode.UpArrow) && _currentFuel > 0f;
 
-            // clamp so it never goes below 0
-            _currentFuel = Mathf.Max(_currentFuel, 0f);
+        if (isThrusting)
+        {
+            _spriteRenderer.sprite = _thrustSprite;
+            _rb.AddForce(_thrustForce * transform.up);
+            _currentFuel -= _fuelConsumptionRate * Time.deltaTime;
+
+            // Start engine sound if not already playing
+            if (!_source.isPlaying)
+                _source.Play();
+        }
+        else
+        {
+            _spriteRenderer.sprite = _idleSprite;
+            // Stop engine sound if it's playing
+            if (_source.isPlaying)
+                _source.Stop();
         }
 
     }

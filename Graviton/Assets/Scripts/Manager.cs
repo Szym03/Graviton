@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 
 public class Manager : MonoBehaviour
 {
@@ -9,12 +10,18 @@ public class Manager : MonoBehaviour
     private Utilities.GameState _state;
     private TMP_Text _pauseMessage;
     private int _stars = 0;
+    [SerializeField] private AudioResource _starAudio;
+    [SerializeField] private AudioResource _explosion;
+    private AudioSource _source;
+
     public int Stars
     {
         get => _stars;
         set
         {
             _stars = value;
+            _source.resource = _starAudio;
+            _source.Play();
             if (Stars == 3)
             {
                 _level += 1;
@@ -22,7 +29,7 @@ public class Manager : MonoBehaviour
             }
         }
     }
-    
+
 
     public Utilities.GameState State
     {
@@ -33,27 +40,22 @@ public class Manager : MonoBehaviour
             _pauseMessage.enabled = State == Utilities.GameState.Pause;
         }
     }
-        
-    
+
+
 
     private void Awake()
     {
-        // Instance is null when no Manager has been initialized
         if (Instance == null)
         {
             Instance = this;
-            Debug.Log("New instance initialized...");
-             SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
             DontDestroyOnLoad(gameObject);
         }
-
-        // We evaluate this portion when trying to initialize a new instance
-        // when one already exists
         else if (Instance != this)
         {
             Destroy(gameObject);
-            Debug.Log("Duplicate instance found and deleted...");
         }
+        _source = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -61,7 +63,7 @@ public class Manager : MonoBehaviour
         _pauseMessage = GameObject.Find("Pause").GetComponent<TMP_Text>();
         State = Utilities.GameState.Play;
         _level = 1;
-        
+
     }
 
     private void Update()
@@ -69,7 +71,7 @@ public class Manager : MonoBehaviour
         // ez pausing
         if (Input.GetKeyDown(KeyCode.P))
         {
-            State = State == Utilities.GameState.Play  ?
+            State = State == Utilities.GameState.Play ?
                 Utilities.GameState.Pause :
                 Utilities.GameState.Play;
         }
@@ -80,6 +82,8 @@ public class Manager : MonoBehaviour
     {
         State = Utilities.GameState.GameOver;
         ResetGame();
+        _source.resource = _explosion;
+        _source.Play();
     }
 
     private void ResetGame()
@@ -106,7 +110,7 @@ public class Manager : MonoBehaviour
     {
         SceneManager.LoadScene(_level);
     }
-    
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         FindPauseUI();
