@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Star
   layers:
   - Default
   - TransparentFX
@@ -42,13 +43,13 @@ TagManager:
     uniqueID: 0
     locked: 0
   - name: Background
-    uniqueID: 3626186755
+    uniqueID: 52384187
     locked: 0
-  - name: Other Stuff
-    uniqueID: 564944609
+  - name: 'Other '
+    uniqueID: 1427811587
     locked: 0
   - name: Player
-    uniqueID: 1250339051
+    uniqueID: 2595185215
     locked: 0
   m_RenderingLayers:
   - Default

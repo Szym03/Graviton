@@ -54,7 +54,11 @@ public class Player : MonoBehaviour
 
         float thrustInput = Input.GetAxis("Vertical");
         float rotateInput = -Input.GetAxis("Horizontal");
-        float rotationSpeed = 100f;
+        float rotationSpeed = 180f;
+
+        // prevent reverse thrust
+        if (thrustInput < 0f)
+            thrustInput = 0f;
 
         _rb.rotation += rotateInput * rotationSpeed * Time.fixedDeltaTime;
         _rb.AddForce(thrustInput * thrustForce * transform.up);
